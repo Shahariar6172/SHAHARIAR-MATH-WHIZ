@@ -13,6 +13,28 @@ Dept. of ICT, MBSTU
 GitHub: [Shahariar6172](https://github.com/Shahariar6172)
  
 ---
+
+## Project Objectives
+ 
+- Build reusable Java methods for prime, modulus and trigonometry calculations.
+- Check every answer with real Java calculations instead of stored answers.
+- Handle requests and responses on the server with a Servlet.
+- Save scores with JDBC and `PreparedStatement`, and read them back with SELECT.
+- Show a Top 10 leaderboard sorted by score and date/time.
+---
+ 
+## Software Requirements
+ 
+| Software | Version |
+|---|---|
+| JDK | 17 or newer |
+| Apache Maven | 3.8+ |
+| Apache Tomcat | 10.1.x |
+| MySQL Server | 8.x (I used Laragon) |
+| VS Code | with Extension Pack for Java |
+| IntelliJ IDEA | 2026.1 or newer |
+ 
+---
  
 ## What I Used
  
@@ -455,7 +477,9 @@ If you change any code, run `mvn clean package` again and copy the new war file 
  
 ## What I Learned
  
-Before this project I only knew C++. Building this taught me how a browser request reaches a Servlet, how JSP pages show data from Java, and how to save and read data with JDBC. It also taught me a few things that are easy to miss: floating-point numbers are never exactly what you expect, Java's `%` keeps the sign of the first number, and using `PreparedStatement` instead of building SQL strings by hand is safer.
-
+This project showed me how a full Java web application fits together. I learned how a browser request travels to a Servlet, how the Servlet passes data to a JSP page, and how JDBC saves and reads data from MySQL.
+ 
+A few smaller lessons stood out too. Floating-point numbers are rarely exact, so decimal answers need a tolerance. Java's `%` keeps the sign of the first number. A `PreparedStatement` is safer than building SQL strings by hand. I also saw how splitting the code into controller, service, DAO and model layers makes each part easier to test and change.
+ 
 ---
 
