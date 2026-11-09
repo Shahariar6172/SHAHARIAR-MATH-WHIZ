@@ -1,8 +1,8 @@
 # SHAHARIAR – MATH WHIZ
  
-This is my lab project for **Java Servlet & JDBC**. It's a small math game that runs in the browser. You type your name, answer four questions, and the server checks your answers and gives you a score out of 10. Every score goes into a MySQL database, and the best 10 show up on a leaderboard.
+This is my lab project for **Java Servlet & JDBC**. It's a small math game that runs in the browser. You type your name, pick your own numbers for four questions, then choose the right answer from three options. The server checks your choices and gives you a score out of 10. Every score goes into a MySQL database, and the best 10 show up on a leaderboard.
  
-The questions cover three topics: prime numbers, modulus and trigonometry. None of the answers are stored anywhere. The server works each one out with real Java methods when it checks your answer.
+The questions cover three topics: prime numbers, modulus and trigonometry. None of the answers are stored anywhere. The server works each one out with real Java methods, both to build the options and to check your answer.
  
 **Al-Shahariar** 
 
@@ -13,18 +13,19 @@ Dept. of ICT, MBSTU
 GitHub: [Shahariar6172](https://github.com/Shahariar6172)
  
 ---
-
-## Project Objectives
  
+## Project Objectives
+
 - Build reusable Java methods for prime, modulus and trigonometry calculations.
 - Check every answer with real Java calculations instead of stored answers.
 - Handle requests and responses on the server with a Servlet.
 - Save scores with JDBC and `PreparedStatement`, and read them back with SELECT.
 - Show a Top 10 leaderboard sorted by score and date/time.
+
 ---
- 
+
 ## Software Requirements
- 
+
 | Software | Version |
 |---|---|
 | JDK | 17 or newer |
@@ -33,9 +34,9 @@ GitHub: [Shahariar6172](https://github.com/Shahariar6172)
 | MySQL Server | 8.x (I used Laragon) |
 | VS Code | with Extension Pack for Java |
 | IntelliJ IDEA | 2026.1 or newer |
- 
+
 ---
- 
+
 ## What I Used
  
 - **Java 17**, with Servlets and JSP (Jakarta EE)
@@ -45,6 +46,9 @@ GitHub: [Shahariar6172](https://github.com/Shahariar6172)
 - **Maven** to build the project
 - **JUnit 5** for testing
 - **VS Code** as my editor
+
+---
+
 ## How the Project Is Organized
  
 ```
@@ -53,15 +57,16 @@ MathWhiz/
 ├── database/math_whiz_db.sql         # SQL to create the database
 ├── screenshots/                      # images used in this README
 ├── src/main/java/
-│   ├── controller/GameServlet.java   # handles /start, /submit and /leaderboard
-│   ├── model/Question.java           # one question and how to check it
+│   ├── controller/GameServlet.java   # handles /start, /options, /submit and /leaderboard
+│   ├── model/Question.java           # one question, its 3 options and how to check it
 │   ├── model/GameScore.java          # one row from the scores table
 │   ├── model/Difficulty.java         # difficulty level and its score multiplier
 │   ├── service/MathService.java      # all the math methods
 │   └── dao/ScoreDAO.java             # saving and reading scores (JDBC)
 ├── src/main/webapp/
 │   ├── index.jsp                     # welcome page
-│   ├── game.jsp                      # the four questions
+│   ├── game.jsp                      # step 1: player enters the numbers
+│   ├── options.jsp                   # step 2: player picks 1 of 3 options
 │   ├── result.jsp                    # your score
 │   ├── leaderboard.jsp               # top 10
 │   └── css/style.css
@@ -79,30 +84,33 @@ Here's what happens from the moment a player opens the page until their score sh
 ```mermaid
 flowchart TD
     A[Open the Welcome Page] --> B[Enter name and click Start Game]
-    B --> C[GameServlet /start makes 4 random questions]
-    C --> D[Game Page shows the questions]
-    D --> E[Player types answers and clicks Submit Answers]
-    E --> F[GameServlet /submit checks each answer with MathService]
-    F --> G[Add marks to get the Base Score]
-    G --> H[Apply NORMAL difficulty x1.0 to get the Final Score]
-    H --> I[ScoreDAO saves name, score, difficulty and time to MySQL]
-    I --> J[Result Page shows the score and correct answers]
-    J --> K[Leaderboard shows the Top 10 from the database]
+    B --> C[Game Page: player enters own integers for the 4 questions]
+    C --> D{Valid input?}
+    D -- No --> C
+    D -- Yes --> E[GameServlet /options builds 4 questions with 3 options each]
+    E --> F[Player selects one option per question and clicks Submit Answers]
+    F --> G[GameServlet /submit checks each choice with MathService]
+    G --> H[Add marks to get the Base Score]
+    H --> I[Apply NORMAL difficulty x1.0 to get the Final Score]
+    I --> J[ScoreDAO saves name, score, difficulty and time to MySQL]
+    J --> K[Result Page shows the score and correct answers]
+    K --> L[Leaderboard shows the Top 10 from the database]
 ```
 
 Step by step:
 
 1. **Open the game.** The browser loads `index.jsp`, the welcome page.
-2. **Enter a name.** The player types a name and clicks **Start Game**. The form goes to `/start`.
-3. **Make the questions.** `GameServlet` checks that the name isn't empty, then creates four random questions: one prime, one modulus and two trigonometry. They're stored in the player's session.
-4. **Show the questions.** `game.jsp` shows all four questions with an answer box for each, plus the difficulty (NORMAL).
-5. **Submit the answers.** The player clicks **Submit Answers**, and the form goes to `/submit`.
-6. **Check each answer.** Every question calls its `MathService` method (`isPrime`, `calculateMod`, `calculateSin`, `calculateCos` or `calculateTan`) to work out the real answer, then compares it with what the player typed. Decimals use a ±0.01 tolerance.
-7. **Calculate the base score.** Correct answers add 2, 2, 3 and 3 marks.
-8. **Apply the difficulty.** The base score is multiplied by the NORMAL multiplier (× 1.0) to get the final score.
-9. **Save to the database.** `ScoreDAO` uses a `PreparedStatement` to insert the name, final score, difficulty and date/time into `game_scores`.
-10. **Show the result.** `result.jsp` shows the final score, the calculation, and a table of every question with the player's answer and the correct one.
-11. **Show the leaderboard.** `/leaderboard` reads the top 10 scores (highest first, earlier player first on a tie) and shows them in `leaderboard.jsp`.
+2. **Enter a name.** The player types a name and clicks **Start Game**. The form goes to `/start`, and the game randomly picks sin, cos or tan for Q3 and Q4.
+3. **Enter your own numbers.** `game.jsp` asks the player for whole numbers: a number to check for Q1, `a` and `b` for Q2, and an angle (in degrees) for Q3 and Q4. Then the player clicks **Get Questions**, and the form goes to `/options`.
+4. **Validate the input.** `GameServlet` accepts integers only. If the divisor is 0, or a tan angle is undefined (90°, 270° …), the page comes back with an error message and the player fixes it.
+5. **Build the options.** For each question, the game calls the right `MathService` method to get the correct answer, then adds two wrong but believable answers and shuffles all three.
+6. **Pick the answers.** `options.jsp` shows the four questions, each with three options. The player selects one per question and clicks **Submit Answers**. The form goes to `/submit`.
+7. **Check each answer.** Each chosen option is compared with the answer from `MathService`. Decimals use a ±0.01 tolerance.
+8. **Calculate the base score.** Correct answers add 2, 2, 3 and 3 marks.
+9. **Apply the difficulty.** The base score is multiplied by the NORMAL multiplier (× 1.0) to get the final score.
+10. **Save to the database.** `ScoreDAO` uses a `PreparedStatement` to insert the name, final score, difficulty and date/time into `game_scores`.
+11. **Show the result.** `result.jsp` shows the final score, the calculation, and a table of every question with the player's choice and the correct answer.
+12. **Show the leaderboard.** `/leaderboard` reads the top 10 scores (highest first, earlier player first on a tie) and shows them in `leaderboard.jsp`.
 
 ---
 
@@ -125,22 +133,24 @@ I started with a Maven web project in VS Code, packaged as a `.war` file so Tomc
 ```
  
 The servlet API is marked `provided` because Tomcat already ships with it, so it doesn't need to go into the war file.
- 
-<img width="218" height="380" alt="Screenshot 2026-11-09 124601" src="https://github.com/user-attachments/assets/da56ccce-18b3-43fb-b135-c52287dcf54c" />
+ <img width="225" height="442" alt="Screenshot 2026-11-09 191428" src="https://github.com/user-attachments/assets/1ab767ac-2400-4bcd-b724-bf53ce47eb7b" />
+
 
 ---
  
 ## Task 02 – Designing the Interface
  
-I wanted the game to be simple to use. There are four pages:
+I wanted the game to be simple to use. There are four screens (the game screen has two steps):
  
 - **Welcome page** – the title, a box for your name, and a Start Game button
-- **Game page** – four questions, each with an answer box, and a Submit Answers button
+- **Game page, step 1** – input boxes where the player enters their own integers for the four questions
+- **Game page, step 2** – the four questions, each with three options to choose from, and a Submit Answers button
 - **Result page** – your name, your total score, and a breakdown of every question with the correct answer
 - **Leaderboard** – the top 10 players
 The result page colors each row green or red, so you can see at a glance which answers you got wrong.
  
-<img width="946" height="469" alt="Screenshot 2026-11-09 124854" src="https://github.com/user-attachments/assets/69b7c24c-7333-42c3-a885-d041c81787e4" />
+<img width="446" height="199" alt="Screenshot 2026-11-09 191007" src="https://github.com/user-attachments/assets/cb802946-4fe6-4628-a410-496d5254f116" />
+
 
  
 ---
@@ -223,13 +233,38 @@ Players type decimal answers like `0.7071`, so an exact match would be too stric
  
 ## Task 06 – Putting the Game Together
  
-When a game starts, the servlet makes four random questions:
- 
-- **Q1 – Prime:** a number from 1 to 100
-- **Q2 – Modulus:** `a` from 10 to 99 and `b` from 2 to 12, so the divisor is never zero
-- **Q3 and Q4 – Trigonometry:** a random sin, cos or tan with a common angle (0°, 30°, 45°, 60° and so on). Tan never gets 90° or 270°.
-The questions are stored in the player's session. When the answers come back, each question checks itself by calling the right `MathService` method. If someone types something that isn't a number, like `abc`, that answer is simply marked wrong.
- 
+The player makes their own questions. On the game page they enter whole numbers:
+
+- **Q1 – Prime:** any integer to check
+- **Q2 – Modulus:** two integers, `a` and `b`
+- **Q3 and Q4 – Trigonometry:** an angle in degrees. The game picks sin, cos or tan for each one at random when the game starts.
+
+Before any question is made, the input is checked:
+
+- Only integers are accepted. Text or decimals give an error.
+- The divisor `b` must not be zero. This uses `calculateMod`, which throws an error for zero.
+- For tan, an angle like 90° or 270° is undefined, so `calculateTan` throws an error and the player is asked for another angle.
+
+If something is wrong, the same page comes back with a clear message and the numbers the player already typed.
+
+Then each question builds **three options**: one correct answer worked out by `MathService`, plus two wrong ones:
+
+| Question | Wrong options come from |
+|---|---|
+| Prime | the opposite answer (0 or 1) and -1 |
+| Modulus | the quotient `a / b` instead of the remainder, or a number next to the right answer |
+| Trigonometry | the other trig functions at the same angle (for example cos instead of sin), the negative value, or the value ± 0.5 |
+
+The three options are shuffled, so the right one isn't always in the same place. The wrong options are always more than 0.01 away from the correct one, so only one option can count as correct.
+
+```java
+for (Question q : qs) {
+    q.generateOptions(random);
+}
+```
+
+The player selects one option per question. When the answers come back, each question checks the selected value by calling the right `MathService` method again.
+
 | Question | Topic | Marks |
 |---|---|---|
 | Q1 | Prime number (1 = prime, 0 = not prime) | 2 |
@@ -301,10 +336,21 @@ Since NORMAL uses × 1.0, the maximum stays at 10 marks, exactly as the assignme
 
 The difficulty is shown on the game page, the result page shows the full calculation (`Base Score × Multiplier = Final Score`), and the level name is saved in the `difficulty` column with every score.
  
-<img width="463" height="357" alt="Screenshot 2026-11-09 133927" src="https://github.com/user-attachments/assets/f0407d9e-5400-4d9b-8f21-d9505a291f3c" />
+**Step 1 – the player enters their own numbers:**
+
+<img width="448" height="353" alt="Screenshot 2026-11-09 191041" src="https://github.com/user-attachments/assets/87cf4551-80a4-42e3-84f7-0eef4e400c18" />
 
 
- <img width="449" height="343" alt="Screenshot 2026-11-09 132200" src="https://github.com/user-attachments/assets/0e096526-c136-47d0-b10c-dcbed22d26d0" />
+**Step 2 – the player picks one of three options:**
+
+<img width="446" height="371" alt="Screenshot 2026-11-09 191311" src="https://github.com/user-attachments/assets/631b0525-09c5-47a9-9112-dbca99150193" />
+
+
+
+**The result, with the difficulty calculation:**
+
+<img width="443" height="341" alt="Screenshot 2026-11-09 191321" src="https://github.com/user-attachments/assets/1dcbbf82-1cb2-4eb1-ac7d-62cec9f5b56f" />
+
 
 
  
@@ -355,7 +401,8 @@ The `try (...)` block closes the connection automatically when it's done, even i
  
 Here's what the saved scores look like in HeidiSQL:
  
-<img width="389" height="101" alt="Screenshot 2026-11-09 125552" src="https://github.com/user-attachments/assets/d649db03-77c4-4997-a207-0c99af8c86e3" />
+<img width="439" height="277" alt="Screenshot 2026-11-09 191353" src="https://github.com/user-attachments/assets/4b0780f1-2893-4e92-8d39-ce7a76eab5f0" />
+
 
  
 ---
@@ -373,14 +420,15 @@ LIMIT 10;
  
 Each row shows the player's name, score, difficulty and when they played.
  
-<img width="465" height="260" alt="Screenshot 2026-11-09 125234" src="https://github.com/user-attachments/assets/fcf30742-5d6d-46b6-afc9-0138f58d3215" />
+<img width="446" height="385" alt="Screenshot 2026-11-09 191330" src="https://github.com/user-attachments/assets/d4c762d0-a38b-4b9c-ba14-807b8d6dac60" />
+
 
  
 ---
  
 ## Task 09 – Testing
  
-I wrote JUnit tests for all the cases in the assignment, plus a few of my own (negative numbers, tan(90°), bad input). To run them:
+I wrote JUnit tests for all the cases in the assignment, plus a few of my own (negative numbers, tan(90°), bad input, and the three options). To run them:
  
 ```
 mvn test
@@ -398,13 +446,13 @@ mvn test
 | Divide by 0 | Error | Pass |
 | All answers right | 10 marks | Pass |
 | Wrong answers | No marks for those | Pass |
+| 3 options per question | All different, exactly 1 correct | Pass |
  
-All 14 tests passed:
+All 15 tests passed:
  
 ```
-Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0
 ```
-<img width="575" height="178" alt="Screenshot 2026-11-09 125806" src="https://github.com/user-attachments/assets/d44653d5-4be0-4351-9923-c1a30998c798" />
 
 
   
@@ -447,39 +495,46 @@ If you change any code, run `mvn clean package` again and copy the new war file 
 ---
  
 ## Screenshots
- 
+
 ### Welcome Page
-<img width="946" height="469" alt="Screenshot 2026-11-09 124854" src="https://github.com/user-attachments/assets/72624b41-8c80-47ad-b6e3-379cff782310" />
+<img width="446" height="199" alt="Screenshot 2026-11-09 191007" src="https://github.com/user-attachments/assets/a7763061-a394-470f-be01-0b7ac2595137" />
 
- 
-### Game Page
-<img width="463" height="357" alt="Screenshot 2026-11-09 133927" src="https://github.com/user-attachments/assets/d2f369bf-611f-458b-afbd-4b6f9a6c45c2" />
 
- 
+### Game Page – Step 1 (enter numbers)
+<img width="448" height="353" alt="Screenshot 2026-11-09 191041" src="https://github.com/user-attachments/assets/c9fefa9c-9d6e-455b-b25a-0406264fd972" />
+
+
+### Game Page – Step 1 (numbers filled in)
+<img width="443" height="346" alt="Screenshot 2026-11-09 191139" src="https://github.com/user-attachments/assets/d5c129a5-4ab7-4521-bc32-27511c12815f" />
+
+
+### Game Page – Step 2 (choose an option)
+<img width="446" height="371" alt="Screenshot 2026-11-09 191311" src="https://github.com/user-attachments/assets/1df98acb-2377-4cb2-b895-577ae03b0705" />
+
+
 ### Result Page
-<img width="449" height="343" alt="Screenshot 2026-11-09 132200" src="https://github.com/user-attachments/assets/b5f7b2bf-2900-40b7-a361-b3edb4a96ccf" />
+<img width="443" height="341" alt="Screenshot 2026-11-09 191321" src="https://github.com/user-attachments/assets/1b6c13ec-e4d9-47ad-b482-8ee5ca08b070" />
 
 
- 
 ### Leaderboard
-<img width="465" height="260" alt="Screenshot 2026-11-09 125234" src="https://github.com/user-attachments/assets/23596cda-3d1a-420f-baa2-f2eae78c9e0d" />
+<img width="446" height="385" alt="Screenshot 2026-11-09 191330" src="https://github.com/user-attachments/assets/da312310-d221-438f-b208-5e3e710b32dc" />
 
- 
+
 ### Database (HeidiSQL)
-<img width="389" height="101" alt="Screenshot 2026-11-09 125552" src="https://github.com/user-attachments/assets/a43bf00b-3c08-40fe-b7e5-c8cc30c125cc" />
+<img width="439" height="277" alt="Screenshot 2026-11-09 191353" src="https://github.com/user-attachments/assets/5c4971fc-95bc-42fe-8990-64bb3ead555e" />
 
- 
-### Test Results
-<img width="575" height="178" alt="Screenshot 2026-11-09 125806" src="https://github.com/user-attachments/assets/8f2772ce-f31f-4698-bce9-fe8131f05cc2" />
 
- 
+### Project Structure
+<img width="225" height="442" alt="Screenshot 2026-11-09 191428" src="https://github.com/user-attachments/assets/1d735df6-b53d-4bbb-a862-386be9253ae6" />
+
+
 ---
- 
+
 ## What I Learned
  
 This project showed me how a full Java web application fits together. I learned how a browser request travels to a Servlet, how the Servlet passes data to a JSP page, and how JDBC saves and reads data from MySQL.
- 
+
 A few smaller lessons stood out too. Floating-point numbers are rarely exact, so decimal answers need a tolerance. Java's `%` keeps the sign of the first number. A `PreparedStatement` is safer than building SQL strings by hand. I also saw how splitting the code into controller, service, DAO and model layers makes each part easier to test and change.
- 
+
 ---
 
