@@ -14,7 +14,7 @@
 <body>
 <div class="card">
     <h1>SHAHARIAR – MATH WHIZ</h1>
-    <p class="sub">Player: <b><c:out value="${sessionScope.playerName}"/></b></p>
+    <p class="sub">Player: <b><c:out value="${sessionScope.playerName}"/></b> &nbsp;|&nbsp; Difficulty: <b>NORMAL</b></p>
 
     <form action="${pageContext.request.contextPath}/submit" method="post">
         <%-- প্রতিটি প্রশ্নের জন্য loop; status.index = 0,1,2,3 --%>

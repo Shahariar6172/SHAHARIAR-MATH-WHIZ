@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import model.Difficulty;
 import model.GameScore;
 import model.Question;
 
@@ -26,7 +27,7 @@ import model.Question;
 @WebServlet(urlPatterns = {"/start", "/submit", "/leaderboard"})
 public class GameServlet extends HttpServlet {
 
-    private static final String DIFFICULTY = "NORMAL"; // আপাতত একটাই level
+    private static final Difficulty DIFFICULTY = Difficulty.NORMAL; // আপাতত একটাই level
 
     private final ScoreDAO dao = new ScoreDAO();
     private final Random random = new Random();
@@ -131,25 +132,31 @@ public class GameServlet extends HttpServlet {
         boolean trig1Correct = qs.get(2).isCorrect();
         boolean trig2Correct = qs.get(3).isCorrect();
 
-        // Scoring Logic (assignment অনুযায়ী)
-        int totalScore = 0;
-        if (primeCorrect) totalScore += 2;
-        if (modCorrect)   totalScore += 2;
-        if (trig1Correct) totalScore += 3;
-        if (trig2Correct) totalScore += 3;
+        // ধাপ ১: Base Score (assignment অনুযায়ী)
+        int baseScore = 0;
+        if (primeCorrect) baseScore += 2;
+        if (modCorrect)   baseScore += 2;
+        if (trig1Correct) baseScore += 3;
+        if (trig2Correct) baseScore += 3;
 
-        // Database এ save
+        // ধাপ ২: Difficulty multiplier প্রয়োগ → Final Score
+        // NORMAL এ multiplier = 1.0, তাই final score = base score (সর্বোচ্চ 10)
+        int totalScore = DIFFICULTY.applyTo(baseScore);
+
+        // Database এ save (difficulty নাম "NORMAL" হিসেবে যায়)
         try {
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            dao.saveScore(new GameScore(name, totalScore, DIFFICULTY, now));
+            dao.saveScore(new GameScore(name, totalScore, DIFFICULTY.name(), now));
         } catch (SQLException e) {
             req.setAttribute("dbError", "Score could not be saved: " + e.getMessage());
         }
 
         req.setAttribute("playerName", name);
         req.setAttribute("questions", qs);
+        req.setAttribute("baseScore", baseScore);
+        req.setAttribute("multiplier", DIFFICULTY.getMultiplier());
         req.setAttribute("totalScore", totalScore);
-        req.setAttribute("difficulty", DIFFICULTY);
+        req.setAttribute("difficulty", DIFFICULTY.name());
 
         // একই প্রশ্নে আবার submit যেন না হয়
         session.removeAttribute("questions");

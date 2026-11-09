@@ -18,7 +18,8 @@
     <div class="score">
         <p><c:out value="${playerName}"/></p>
         <h2>${totalScore} / 10</h2>
-        <p class="sub">Difficulty: ${difficulty}</p>
+        <p class="sub">Difficulty: ${difficulty} (×${multiplier})</p>
+        <p class="sub">Base Score ${baseScore} × ${multiplier} = Final Score ${totalScore}</p>
     </div>
 
     <c:if test="${not empty dbError}">

@@ -62,6 +62,9 @@ class MathServiceTest {
             total += qs[i].getEarnedMarks();
         }
         assertEquals(10, total);
+        // NORMAL difficulty (×1.0) প্রয়োগের পরেও final score 10
+        assertEquals(10, model.Difficulty.NORMAL.applyTo(total));
+        assertEquals(7, model.Difficulty.NORMAL.applyTo(7));
     }
 
     @Test void wrongAnswersGiveNoMarks() {
