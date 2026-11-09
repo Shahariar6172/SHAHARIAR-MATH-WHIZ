@@ -34,6 +34,7 @@ MathWhiz/
 │   ├── controller/GameServlet.java   # handles /start, /submit and /leaderboard
 │   ├── model/Question.java           # one question and how to check it
 │   ├── model/GameScore.java          # one row from the scores table
+│   ├── model/Difficulty.java         # difficulty level and its score multiplier
 │   ├── service/MathService.java      # all the math methods
 │   └── dao/ScoreDAO.java             # saving and reading scores (JDBC)
 ├── src/main/webapp/
@@ -49,6 +50,40 @@ I split the code into layers so each part has one job. The servlet only handles 
  
 ---
  
+## How the Game Works (Workflow)
+
+Here's what happens from the moment a player opens the page until their score shows up on the leaderboard.
+
+```mermaid
+flowchart TD
+    A[Open the Welcome Page] --> B[Enter name and click Start Game]
+    B --> C[GameServlet /start makes 4 random questions]
+    C --> D[Game Page shows the questions]
+    D --> E[Player types answers and clicks Submit Answers]
+    E --> F[GameServlet /submit checks each answer with MathService]
+    F --> G[Add marks to get the Base Score]
+    G --> H[Apply NORMAL difficulty x1.0 to get the Final Score]
+    H --> I[ScoreDAO saves name, score, difficulty and time to MySQL]
+    I --> J[Result Page shows the score and correct answers]
+    J --> K[Leaderboard shows the Top 10 from the database]
+```
+
+Step by step:
+
+1. **Open the game.** The browser loads `index.jsp`, the welcome page.
+2. **Enter a name.** The player types a name and clicks **Start Game**. The form goes to `/start`.
+3. **Make the questions.** `GameServlet` checks that the name isn't empty, then creates four random questions: one prime, one modulus and two trigonometry. They're stored in the player's session.
+4. **Show the questions.** `game.jsp` shows all four questions with an answer box for each, plus the difficulty (NORMAL).
+5. **Submit the answers.** The player clicks **Submit Answers**, and the form goes to `/submit`.
+6. **Check each answer.** Every question calls its `MathService` method (`isPrime`, `calculateMod`, `calculateSin`, `calculateCos` or `calculateTan`) to work out the real answer, then compares it with what the player typed. Decimals use a ±0.01 tolerance.
+7. **Calculate the base score.** Correct answers add 2, 2, 3 and 3 marks.
+8. **Apply the difficulty.** The base score is multiplied by the NORMAL multiplier (× 1.0) to get the final score.
+9. **Save to the database.** `ScoreDAO` uses a `PreparedStatement` to insert the name, final score, difficulty and date/time into `game_scores`.
+10. **Show the result.** `result.jsp` shows the final score, the calculation, and a table of every question with the player's answer and the correct one.
+11. **Show the leaderboard.** `/leaderboard` reads the top 10 scores (highest first, earlier player first on a tie) and shows them in `leaderboard.jsp`.
+
+---
+
 ## Task 01 – Project Setup
  
 I started with a Maven web project in VS Code, packaged as a `.war` file so Tomcat can run it. Since Tomcat 10 uses the newer `jakarta.*` packages, I used Servlet API 6.0. I also added MySQL Connector/J so Java can connect to the database.
@@ -181,22 +216,73 @@ The questions are stored in the player's session. When the answers come back, ea
 | Q4 | Trigonometry | 3 |
 | | **Total** | **10** |
  
-The scoring code follows the assignment exactly:
- 
+Scoring happens in two steps. First I add up the marks exactly as the assignment says. That gives the **base score**:
+
 ```java
-int totalScore = 0;
- 
-if (primeCorrect) totalScore += 2;
-if (modCorrect)   totalScore += 2;
-if (trig1Correct) totalScore += 3;
-if (trig2Correct) totalScore += 3;
+int baseScore = 0;
+
+if (primeCorrect) baseScore += 2;
+if (modCorrect)   baseScore += 2;
+if (trig1Correct) baseScore += 3;
+if (trig2Correct) baseScore += 3;
 ```
- 
+
+Then I apply the difficulty level to get the **final score** (see [Difficulty Level](#difficulty-level) below):
+
+```java
+int totalScore = DIFFICULTY.applyTo(baseScore);
+```
+
 After submitting, the questions are removed from the session, so the same game can't be submitted twice.
+
+### Difficulty Level
+
+Right now every question is at the same level, **NORMAL**, as the assignment asks. I still wanted the difficulty to actually mean something in the code, not just be a word saved in the database. So each level has a **score multiplier**, and the final score is calculated with it:
+
+```
+Final Score = round(Base Score × Multiplier)
+```
+
+| Difficulty | Prime | Modulus | Trigonometry | Multiplier | Max Final Score |
+|---|---|---|---|---|---|
+| NORMAL | NORMAL | NORMAL | NORMAL | × 1.0 | 10 |
+
+The levels live in a small enum, `Difficulty.java`:
+
+```java
+public enum Difficulty {
+
+    NORMAL(1.0);
+
+    private final double multiplier;
+
+    Difficulty(double multiplier) {
+        this.multiplier = multiplier;
+    }
+
+    public int applyTo(int baseScore) {
+        return (int) Math.round(baseScore * multiplier);
+    }
+}
+```
+
+A few examples with NORMAL:
+
+| Correct answers | Base Score | × Multiplier | Final Score |
+|---|---|---|---|
+| All four | 10 | × 1.0 | **10** |
+| Prime + Trig 1 + Trig 2 | 8 | × 1.0 | **8** |
+| Modulus + Trig 1 | 5 | × 1.0 | **5** |
+| None | 0 | × 1.0 | **0** |
+
+Since NORMAL uses × 1.0, the maximum stays at 10 marks, exactly as the assignment requires. If I add a harder level later, I only need to add one line to the enum (for example `HARD(1.5)`) and the scoring code doesn't change.
+
+The difficulty is shown on the game page, the result page shows the full calculation (`Base Score × Multiplier = Final Score`), and the level name is saved in the `difficulty` column with every score.
  
 <img width="472" height="366" alt="Screenshot 2026-11-09 125024" src="https://github.com/user-attachments/assets/167b0d9b-d4bc-47e8-81dd-b607e7b9676c" />
 
- <img width="447" height="315" alt="Screenshot 2026-11-09 125158" src="https://github.com/user-attachments/assets/a1c44bd6-e0fb-435d-b928-fbf7d2022b8f" />
+ <img width="449" height="343" alt="Screenshot 2026-11-09 132200" src="https://github.com/user-attachments/assets/0e096526-c136-47d0-b10c-dcbed22d26d0" />
+
 
  
 ---
@@ -218,7 +304,7 @@ CREATE TABLE IF NOT EXISTS game_scores (
 );
 ```
  
-The game only has one difficulty right now (**NORMAL**), but I still save it with every score. That way it's easy to add more levels later.
+Every score is saved together with its difficulty level (**NORMAL** for now). See [Difficulty Level](#difficulty-level) for how it affects the final score.
  
 The connection details are in `ScoreDAO.java`. Laragon's MySQL root user has no password by default, so mine is empty:
  
@@ -348,7 +434,8 @@ If you change any code, run `mvn clean package` again and copy the new war file 
 
  
 ### Result Page
-<img width="447" height="315" alt="Screenshot 2026-11-09 125158" src="https://github.com/user-attachments/assets/44f5d43d-76ff-4ca6-a9f2-4c03dd292b4a" />
+<img width="449" height="343" alt="Screenshot 2026-11-09 132200" src="https://github.com/user-attachments/assets/b5f7b2bf-2900-40b7-a361-b3edb4a96ccf" />
+
 
  
 ### Leaderboard
@@ -368,4 +455,39 @@ If you change any code, run `mvn clean package` again and copy the new war file 
 ## What I Learned
  
 Before this project I only knew C++. Building this taught me how a browser request reaches a Servlet, how JSP pages show data from Java, and how to save and read data with JDBC. It also taught me a few things that are easy to miss: floating-point numbers are never exactly what you expect, Java's `%` keeps the sign of the first number, and using `PreparedStatement` instead of building SQL strings by hand is safer.
+
+---
+
+## Checklist
+
+Click any item to jump to that part of this README.
+
+**Development tasks**
+- [x] [Task 01 – Project Setup](#task-01--project-setup)
+- [x] [Task 02 – Designing the Interface](#task-02--designing-the-interface)
+- [x] [Task 03 – Prime Number Function](#task-03--checking-for-prime-numbers)
+- [x] [Task 04 – Modulus Function](#task-04--the-modulus-function)
+- [x] [Task 05 – Trigonometric Functions](#task-05--trigonometry)
+- [x] [Task 06 – Game Logic and Score Calculation](#task-06--putting-the-game-together)
+- [x] [Difficulty Level and Final Score](#difficulty-level)
+- [x] [Task 07 – Database Design Using JDBC](#task-07--the-database)
+- [x] [Task 08 – Top 10 Leaderboard](#task-08--the-leaderboard)
+- [x] [Task 09 – Testing and Validation](#task-09--testing)
+- [x] [Task 10 – Documentation and Submission](#task-10--documentation-and-submission)
+
+**Game workflow**
+- [x] [How the Game Works (Workflow)](#how-the-game-works-workflow)
+
+**Running the project**
+- [x] [Start MySQL in Laragon](#how-to-run-it-yourself)
+- [x] [Create the database](#task-07--the-database)
+- [x] [Build with Maven](#how-to-run-it-yourself)
+- [x] [Deploy to Tomcat and start it](#how-to-run-it-yourself)
+- [x] [Open the game in the browser](#how-to-run-it-yourself)
+
+**Submission**
+- [x] [Complete Java source code](#how-the-project-is-organized)
+- [x] [Database SQL file](#task-07--the-database)
+- [x] [Application screenshots](#screenshots)
+- [x] [GitHub repository link](#task-10--documentation-and-submission)
  
