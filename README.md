@@ -279,7 +279,8 @@ Since NORMAL uses × 1.0, the maximum stays at 10 marks, exactly as the assignme
 
 The difficulty is shown on the game page, the result page shows the full calculation (`Base Score × Multiplier = Final Score`), and the level name is saved in the `difficulty` column with every score.
  
-<img width="472" height="366" alt="Screenshot 2026-11-09 125024" src="https://github.com/user-attachments/assets/167b0d9b-d4bc-47e8-81dd-b607e7b9676c" />
+<img width="463" height="357" alt="Screenshot 2026-11-09 133927" src="https://github.com/user-attachments/assets/f0407d9e-5400-4d9b-8f21-d9505a291f3c" />
+
 
  <img width="449" height="343" alt="Screenshot 2026-11-09 132200" src="https://github.com/user-attachments/assets/0e096526-c136-47d0-b10c-dcbed22d26d0" />
 
@@ -430,7 +431,7 @@ If you change any code, run `mvn clean package` again and copy the new war file 
 
  
 ### Game Page
-<img width="472" height="366" alt="Screenshot 2026-11-09 125024" src="https://github.com/user-attachments/assets/31658ed4-9dd0-4a97-8f2c-20d8617e40c7" />
+<img width="463" height="357" alt="Screenshot 2026-11-09 133927" src="https://github.com/user-attachments/assets/d2f369bf-611f-458b-afbd-4b6f9a6c45c2" />
 
  
 ### Result Page
