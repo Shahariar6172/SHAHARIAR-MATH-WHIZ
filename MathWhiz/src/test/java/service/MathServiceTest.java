@@ -67,6 +67,28 @@ class MathServiceTest {
         assertEquals(7, model.Difficulty.NORMAL.applyTo(7));
     }
 
+    @Test void threeOptionsWithOneCorrect() {
+        // player এর দেওয়া সংখ্যা দিয়ে প্রশ্ন → ৩টা option, ঠিক ১টা সঠিক
+        Question[] qs = {
+            new Question("PRIME", 29, 0, 2),
+            new Question("MOD", 17, 5, 2),
+            new Question("SIN", 45, 0, 3),
+            new Question("TAN", 135, 0, 3)
+        };
+        java.util.Random rnd = new java.util.Random(1);
+        for (Question q : qs) {
+            q.generateOptions(rnd);
+            assertEquals(3, q.getOptions().size());
+            assertEquals(3, new java.util.HashSet<>(q.getOptions()).size()); // সব আলাদা
+            int right = 0;
+            for (String opt : q.getOptions()) {
+                q.checkAnswer(opt);
+                if (q.isCorrect()) right++;
+            }
+            assertEquals(1, right);
+        }
+    }
+
     @Test void wrongAnswersGiveNoMarks() {
         Question q1 = new Question("PRIME", 8, 0, 2);
         q1.checkAnswer("1");               // ভুল

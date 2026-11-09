@@ -27,7 +27,7 @@ h2 { color: #2a5298; }
 
 label { display: block; text-align: left; font-weight: 600; margin: 14px 0 6px; }
 
-input[type=text] {
+input[type=text], input[type=number] {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -61,3 +61,24 @@ tr.ok td { background: #eafaf1; }
 tr.bad td { background: #fdecea; }
 
 .link { display: inline-block; margin: 14px 10px 0; color: #2a5298; }
+
+/* Q2: a % b পাশাপাশি */
+.row { display: flex; align-items: center; gap: 10px; }
+.op { font-size: 20px; font-weight: bold; color: #1e3c72; }
+
+/* ৩টা option (radio) */
+.qtext { text-align: left; font-weight: 600; margin: 18px 0 8px; }
+.options { display: flex; gap: 10px; flex-wrap: wrap; }
+.option {
+    flex: 1;
+    min-width: 120px;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: normal;
+    text-align: center;
+}
+.option:hover { background: #f0f4fb; }
+.option:has(input:checked) { border-color: #1e3c72; background: #e6ecf7; }
