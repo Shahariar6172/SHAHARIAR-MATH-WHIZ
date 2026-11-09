@@ -4,7 +4,12 @@ This is my lab project for **Java Servlet & JDBC**. It's a small math game that 
  
 The questions cover three topics: prime numbers, modulus and trigonometry. None of the answers are stored anywhere. The server works each one out with real Java methods when it checks your answer.
  
-**Al-Shahariar** · ID: IT-24057 · Dept. of ICT, MBSTU
+**Al-Shahariar** 
+
+**ID: IT-24057**
+
+Dept. of ICT, MBSTU
+
 GitHub: [Shahariar6172](https://github.com/Shahariar6172)
  
 ---
@@ -64,8 +69,8 @@ I started with a Maven web project in VS Code, packaged as a `.war` file so Tomc
  
 The servlet API is marked `provided` because Tomcat already ships with it, so it doesn't need to go into the war file.
  
-![Project Structure](screenshots/project-structure.png)
- 
+<img width="218" height="380" alt="Screenshot 2026-11-09 124601" src="https://github.com/user-attachments/assets/da56ccce-18b3-43fb-b135-c52287dcf54c" />
+
 ---
  
 ## Task 02 – Designing the Interface
@@ -78,7 +83,8 @@ I wanted the game to be simple to use. There are four pages:
 - **Leaderboard** – the top 10 players
 The result page colors each row green or red, so you can see at a glance which answers you got wrong.
  
-![Welcome Page](screenshots/home.png)
+<img width="946" height="469" alt="Screenshot 2026-11-09 124854" src="https://github.com/user-attachments/assets/69b7c24c-7333-42c3-a885-d041c81787e4" />
+
  
 ---
  
@@ -188,9 +194,10 @@ if (trig2Correct) totalScore += 3;
  
 After submitting, the questions are removed from the session, so the same game can't be submitted twice.
  
-![Game Page](screenshots/game.png)
- 
-![Result Page](screenshots/result.png)
+<img width="472" height="366" alt="Screenshot 2026-11-09 125024" src="https://github.com/user-attachments/assets/167b0d9b-d4bc-47e8-81dd-b607e7b9676c" />
+
+ <img width="447" height="315" alt="Screenshot 2026-11-09 125158" src="https://github.com/user-attachments/assets/a1c44bd6-e0fb-435d-b928-fbf7d2022b8f" />
+
  
 ---
  
@@ -239,7 +246,8 @@ The `try (...)` block closes the connection automatically when it's done, even i
  
 Here's what the saved scores look like in HeidiSQL:
  
-![Database Records](screenshots/database.png)
+<img width="389" height="101" alt="Screenshot 2026-11-09 125552" src="https://github.com/user-attachments/assets/d649db03-77c4-4997-a207-0c99af8c86e3" />
+
  
 ---
  
@@ -256,7 +264,8 @@ LIMIT 10;
  
 Each row shows the player's name, score, difficulty and when they played.
  
-![Leaderboard](screenshots/leaderboard.png)
+<img width="465" height="260" alt="Screenshot 2026-11-09 125234" src="https://github.com/user-attachments/assets/fcf30742-5d6d-46b6-afc9-0138f58d3215" />
+
  
 ---
  
@@ -286,9 +295,10 @@ All 14 tests passed:
 ```
 Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
 ```
- 
-![Test Results](screenshots/tests.png)
- 
+<img width="575" height="178" alt="Screenshot 2026-11-09 125806" src="https://github.com/user-attachments/assets/d44653d5-4be0-4351-9923-c1a30998c798" />
+
+
+  
 ---
  
 ## Task 10 – Documentation and Submission
@@ -296,7 +306,7 @@ Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
 The full project is on GitHub. It includes the source code, the database SQL file, this README and screenshots of every page.
  
 **Project link:**
-https://github.com/Shahariar6172/REPOSITORY_NAME/tree/main/MathWhiz
+https://github.com/Shahariar6172/SHAHARIAR-MATH-WHIZ
  
 ---
  
@@ -330,25 +340,28 @@ If you change any code, run `mvn clean package` again and copy the new war file 
 ## Screenshots
  
 ### Welcome Page
-![Welcome Page](screenshots/home.png)
+<img width="946" height="469" alt="Screenshot 2026-11-09 124854" src="https://github.com/user-attachments/assets/72624b41-8c80-47ad-b6e3-379cff782310" />
+
  
 ### Game Page
-![Game Page](screenshots/game.png)
+<img width="472" height="366" alt="Screenshot 2026-11-09 125024" src="https://github.com/user-attachments/assets/31658ed4-9dd0-4a97-8f2c-20d8617e40c7" />
+
  
 ### Result Page
-![Result Page](screenshots/result.png)
+<img width="447" height="315" alt="Screenshot 2026-11-09 125158" src="https://github.com/user-attachments/assets/44f5d43d-76ff-4ca6-a9f2-4c03dd292b4a" />
+
  
 ### Leaderboard
-![Leaderboard](screenshots/leaderboard.png)
+<img width="465" height="260" alt="Screenshot 2026-11-09 125234" src="https://github.com/user-attachments/assets/23596cda-3d1a-420f-baa2-f2eae78c9e0d" />
+
  
 ### Database (HeidiSQL)
-![Database](screenshots/database.png)
+<img width="389" height="101" alt="Screenshot 2026-11-09 125552" src="https://github.com/user-attachments/assets/a43bf00b-3c08-40fe-b7e5-c8cc30c125cc" />
+
  
 ### Test Results
-![Tests](screenshots/tests.png)
- 
-### Project Structure
-![Project Structure](screenshots/project-structure.png)
+<img width="575" height="178" alt="Screenshot 2026-11-09 125806" src="https://github.com/user-attachments/assets/8f2772ce-f31f-4698-bce9-fe8131f05cc2" />
+
  
 ---
  
